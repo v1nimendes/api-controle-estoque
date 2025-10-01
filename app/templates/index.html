@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Produtos</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <h1>Cadastro de Produtos</h1>
+
+    <div class="container">
+        <div class="acoes">
+            <div class="card">
+                <h2>Criar Produto</h2>
+                <input type="text" id="nome" placeholder="Nome" />
+                <input type="number" id="quantidade" placeholder="Quantidade" />
+                <button onclick="criarProduto()">Criar</button>
+            </div>
+
+            <div class="card">
+                <h2>Editar Produto</h2>
+                <input type="number" id="editar-id" placeholder="ID do Produto" />
+                <input type="number" id="editar-quantidade" placeholder="Nova quantidade" />
+                <button onclick="editarProduto()">Editar</button>
+            </div>
+
+            <div class="card">
+                <h2>Excluir Produto</h2>
+                <input type="number" id="excluir-id" placeholder="ID do Produto" />
+                <button onclick="excluirProduto()">Excluir</button>
+            </div>
+        </div>
+
+        <div class="listagem">
+            <div class="card">
+                <h2>Lista de Produtos</h2>
+                <button onclick="listarProdutos()">Atualizar Lista</button>
+                <ul id="lista-produtos"></ul>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const baseURL = "/";
+
+        async function criarProduto() {
+            const nome = document.getElementById("nome").value;
+            const quantidade = document.getElementById("quantidade").value;
+
+            const res = await fetch(`${baseURL}criar_produto/?nome=${nome}&quantidade=${quantidade}`);
+            const data = await res.json();
+            alert("Produto criado!");
+            listarProdutos();
+        }
+
+        async function listarProdutos() {
+            const res = await fetch(`${baseURL}listar_produtos/`);
+            const produtos = await res.json();
+
+            const lista = document.getElementById("lista-produtos");
+            lista.innerHTML = "";
+
+            if (produtos.length === 0) {
+                const li = document.createElement("li");
+                li.textContent = "Nenhum produto cadastrado.";
+                lista.appendChild(li);
+            } else {
+                produtos.forEach(produto => {
+                    const li = document.createElement("li");
+                    li.textContent = `ID: ${produto.id} | Nome: ${produto.nome} | Quantidade: ${produto.quantidade}`;
+                    lista.appendChild(li);
+                });
+            }
+        }
+
+        async function editarProduto() {
+            const id = document.getElementById("editar-id").value;
+            const quantidade = document.getElementById("editar-quantidade").value;
+
+            if (!id || !quantidade) {
+                alert("Por favor, preencha o ID e a nova quantidade.");
+                return;
+            }
+
+            const res = await fetch(`${baseURL}editar_produto/${id}/${quantidade}`);
+            const data = await res.json();
+            alert("Produto editado!");
+            listarProdutos();
+        }
+
+        async function excluirProduto() {
+            const id = document.getElementById("excluir-id").value;
+
+            if (!id) {
+                alert("Por favor, informe o ID do produto a ser excluído.");
+                return;
+            }
+
+            const res = await fetch(`${baseURL}excluir_produto/${id}`);
+            const data = await res.json();
+            alert("Produto excluído!");
+            listarProdutos();
+        }
+
+        listarProdutos();
+    </script>
+</body>
+</html>
